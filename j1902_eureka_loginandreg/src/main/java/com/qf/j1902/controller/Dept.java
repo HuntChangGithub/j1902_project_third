@@ -7,4 +7,6 @@ import com.qf.j1902.pojo.User;
  */
 public class Dept {
     private User user;
+    private String uname;
+    private int id;
 }
