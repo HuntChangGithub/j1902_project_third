@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keys" content="">
+    <meta name="author" content="">
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/login.css">
+	<style>
+
+	</style>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <div><a class="navbar-brand" href="index.html" style="font-size:32px;">“伴”我汽车</a></div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <form class="form-signin" role="form">
+        <h2 class="form-signin-heading"><i class="glyphicon glyphicon-user"></i> 登录</h2>
+		  <div class="form-group has-success has-feedback">
+			<input type="text" class="form-control" id="inputSuccess3" placeholder="请输入登录账号" autofocus>
+			<span class="glyphicon glyphicon-user form-control-feedback"></span>
+		  </div>
+		  <div class="form-group has-success has-feedback">
+			<input type="password" class="form-control" id="inputSuccess4" placeholder="请输入登录密码" style="margin-top:10px;">
+			<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+		  </div>
+          <div class="form-group has-success has-feedback">
+              验证码：<input type="text" name = "imgCode"  size="10px"/>
+              <img id="imgCode" src="/getImage" width="125" height="40"/>
+              <a href="javaScript:changeCode();"><br/>
+              看不清，再来一张</a>
+           </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> 记住密码
+          </label>
+          <label style="float:right">
+            <a href="reg">我要注册</a>
+          </label>
+        </div>
+          <br>
+        <a class="btn btn-lg btn-success btn-block" onclick="dologin()" > 登录</a>
+          <br>
+          <div align="center">
+              <label>三方账号登录</label><br>
+              <img src="img/wexing.jpg" style="width: 60px;height: 60px"/>
+              <img src="img/weobo.jpg" style="width: 70px;height: 60px;margin-left: 28px"/>
+              <img src="img/qq.jpg" style="width: 60px;height: 60px;margin-left: 28px"/>
+          </div>
+      </form>
+
+    </div>
+    <script src="jquery/jquery-2.1.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        function changeCode(){
+            var getTimestamp=new Date().getTime();
+            $("#imgCode").attr("src","/getImage?timestamp="+getTimestamp);
+        }
+        function dologin() {
+        var username = $("#inputSuccess3").val();
+        var upassword = $("#inputSuccess4").val();
+        var imgcode = $("[name=imgCode]").val();
+        alert(username+"-"+upassword+"-"+"-"+imgcode);
+        $.post("dologin",{username:username,upassword:upassword,imgcode:imgcode},function (data) {
+           if(data=="success"){
+               window.location.href="index";
+           }else {
+               window.location.href="";
+           }
+        });
+    }
+    </script>
+  </body>
+</html>

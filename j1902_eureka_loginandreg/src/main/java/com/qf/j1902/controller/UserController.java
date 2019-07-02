@@ -11,14 +11,23 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.google.gson.Gson;
 import com.qf.j1902.pojo.User;
 import com.qf.j1902.service.UserService;
+import com.qf.j1902.utils.ImgCode;
+import com.qf.j1902.vo.UserVo;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +41,62 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+    //    显示登录视图
+    @RequestMapping(value="/login",method = RequestMethod.GET)
+    public String  showLoginForm(){
+
+        return "login";
+    }
+    @RequestMapping(value="/index",method = RequestMethod.GET)
+    public String  index(){
+
+        return "index";
+    }
+    @RequestMapping(value="/getImage" ,method=RequestMethod.GET)
+    public void getVerifyImage(HttpServletRequest request, HttpServletResponse response){
+        ImgCode imgCode = new ImgCode();
+        imgCode.getRandcode(request,response);
+    }
+    //登录
+    @RequestMapping(value = "/dologin",method = RequestMethod.POST)
+    @ResponseBody
+    public String login(Model model,HttpSession session, UserVo userVo){
+        String imgcode = (String) session.getAttribute(ImgCode.RANDOMCODEKEY);
+        //验证码校验
+        if (userVo.getImgcode().equalsIgnoreCase(imgcode)){
+        //通过，校验用户名密码
+            User user = userService.getUserByName(userVo.getUsername());
+            if (user!=null){
+                //构建shiro验证令牌
+                Subject subject = SecurityUtils.getSubject();
+                UsernamePasswordToken token = new UsernamePasswordToken(userVo.getUsername(), userVo.getUpassword());
+                try {
+                    subject.login(token);
+
+                    if (subject.isAuthenticated()){
+                        //验证通过
+
+                        return "success";
+                    }else {
+                        //用户名或密码错误
+                    }
+                } catch (AuthenticationException e) {
+                    e.printStackTrace();
+                }
+            }else {//用户不存在
+                return "";
+            }
+        }else {//验证码错误
+            return "";
+        }
+
+        return "success";
+    }
+    @RequestMapping(value="/reg",method = RequestMethod.GET)
+    public String  reg(){
+
+        return "reg";
+    }
     //通过阿里云第三方服务发送手机注册验证码
     @RequestMapping(value = "sendphone")
     public void phoneYzm(@RequestParam("telphone") String telphone , HttpSession session) {
